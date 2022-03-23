@@ -4,7 +4,7 @@ from json import *
 
 class SaveState:
 
-    def save(self, clk, cntr, mod):
+    def save(self, clk, cntrs, mod):
         # Collect data to save and create JSON object
         data = {
             'clocks': [{
@@ -16,7 +16,10 @@ class SaveState:
                 'time_since_start': clk.time_since_start
             }],
             'counters': [{
-                'current_count': cntr.current_count
+                'current_count': cntrs[0].current_count,
+                'max_count': cntrs[1].current_count,
+                'click_count': cntrs[2].current_count,
+                'tick_count': cntrs[3].current_count
             }],
             'modifiers': [{
                 'click_mod': mod.click_mod,
@@ -33,7 +36,7 @@ class SaveState:
 
         print("Saved")
 
-    def load(self, clk, cntr, mod):
+    def load(self, clk, cntrs, mod):
         # Load data from save.json
         with open('save.json') as json_file:
             data = load(json_file)
@@ -44,7 +47,10 @@ class SaveState:
         clk.set_start_time(data['clocks'][0]['start_time'])
         clk.set_start_time_str(data['clocks'][0]['start_time_str'])
         # Counter Parameters
-        cntr.set_current_count(data['counters'][0]['current_count'])
+        cntrs[0].set_current_count(data['counters'][0]['current_count'])
+        cntrs[1].set_current_count(data['counters'][0]['max_count'])
+        cntrs[2].set_current_count(data['counters'][0]['click_count'])
+        cntrs[3].set_current_count(data['counters'][0]['tick_count'])
         # Modifiers Parameters
         mod.set_click_mod(data['modifiers'][0]['click_mod'])
         mod.set_tick_mod(data['modifiers'][0]['tick_mod'])
