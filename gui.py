@@ -5,6 +5,7 @@ from tkinter.ttk import *
 # Import Custom Classes
 from clock import Clock
 from counter import Counter
+from helper import Helper
 from modifiers import Modifiers
 from save_state import SaveState
 
@@ -14,6 +15,7 @@ class GUI:
     tick = 1
     main_clock = Clock()
     counter = Counter()
+    helper = Helper()
     modifiers = Modifiers()
     save_state = SaveState()
     clocks = [main_clock]
@@ -59,7 +61,7 @@ class GUI:
         self.clicker = Button(self.button_frame, text='Click Me', command=self.clicker_callback)
         self.buy_clicker = Button(self.button_frame, text='Buy +1/click [ 0 ] ( 100 )', state="disabled",
                                   command=self.buy_clicker_callback)
-        self.buy_ticker = Button(self.button_frame, text='Buy +1/tick [ 0 ] ( 1000 )', state="disabled",
+        self.buy_ticker = Button(self.button_frame, text='Buy +1/tick [ 0 ] ( 1,000 )', state="disabled",
                                  command=self.buy_ticker_callback)
         self.sell_clicker = Button(self.button_frame, text='Sell +1/click ( - )', state="disabled",
                                    command=self.sell_clicker_callback)
@@ -86,18 +88,18 @@ class GUI:
         self.main_clock.time()
         self.date_label.config(text=self.main_clock.start_date)
         self.time_label.config(text=self.main_clock.current_time)
-        self.counter_label.config(text=self.counter.current_count)
+        self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
 
     # Function to automatically increment the clock and counter every 1 second
     def update_gui(self):
         self.date_label.config(text=self.main_clock.current_date)
         self.time_label.config(text=self.main_clock.current_time)
         self.counter.increment(self.tick + self.modifiers.tick_counter.current_count)
-        self.counter_label.config(text=self.counter.current_count)
-        self.buy_clicker["text"] = "Buy +1/click [ " + str(self.modifiers.click_mod) + " ] ( " + \
-                                   str(self.modifiers.click_mod_buy) + " )"
-        self.buy_ticker["text"] = "Buy +1/tick [ " + str(self.modifiers.tick_mod) + " ] ( " + \
-                                  str(self.modifiers.tick_mod_buy) + " )"
+        self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
+        self.buy_clicker["text"] = "Buy +1/click [ " + str(self.helper.number_formatter(self.modifiers.click_mod)) + \
+                                   " ] ( " + str(self.helper.number_formatter(self.modifiers.click_mod_buy)) + " )"
+        self.buy_ticker["text"] = "Buy +1/tick [ " + str(self.helper.number_formatter(self.modifiers.tick_mod)) + \
+                                  " ] ( " + str(self.helper.number_formatter(self.modifiers.tick_mod_buy)) + " )"
 
         # Toggle the buy buttons based on if you can afford them
         if self.counter.current_count < self.modifiers.click_mod_buy:
@@ -116,28 +118,32 @@ class GUI:
             self.sell_clicker["text"] = "Sell +1/click ( - )"
         else:
             self.sell_clicker["state"] = "normal"
-            self.sell_clicker["text"] = "Sell +1/click ( " + str(self.modifiers.get_click_mod_sell()) + " )"
+            self.sell_clicker["text"] = "Sell +1/click ( " + str(self.helper.number_formatter(
+                self.modifiers.get_click_mod_sell())) + " )"
 
         if self.modifiers.tick_mod == 0:
             self.sell_ticker["state"] = "disabled"
             self.sell_ticker["text"] = "Sell +1/tick ( - )"
         else:
             self.sell_ticker["state"] = "normal"
-            self.sell_ticker["text"] = "Sell +1/tick ( " + str(self.modifiers.get_tick_mod_sell()) + " )"
+            self.sell_ticker["text"] = "Sell +1/tick ( " + str(self.helper.number_formatter(
+                self.modifiers.get_tick_mod_sell())) + " )"
 
     # Button Callbacks
     def clicker_callback(self):
         self.counter.increment(self.click + self.modifiers.click_counter.current_count)
-        self.counter_label.config(text=self.counter.current_count)
+        self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
 
     def buy_clicker_callback(self):
         if self.counter.current_count >= self.modifiers.click_mod_buy:
             self.counter.set_current_count(self.counter.current_count - self.modifiers.click_mod_buy)
             self.modifiers.increment_click_mod(1)
-            self.counter_label.config(text=self.counter.current_count)
-            self.buy_clicker["text"] = "Buy +1/click [ " + str(self.modifiers.click_mod) + " ] ( " + \
-                                       str(self.modifiers.click_mod_buy) + " )"
-            self.sell_clicker["text"] = "Sell +1/click ( " + str(self.modifiers.get_click_mod_sell()) + " )"
+            self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
+            self.buy_clicker["text"] = "Buy +1/click [ " + str(self.helper.number_formatter(self.modifiers.click_mod)) \
+                                       + " ] ( " + str(self.helper.number_formatter(self.modifiers.click_mod_buy)) + \
+                                       " )"
+            self.sell_clicker["text"] = "Sell +1/click ( " + str(self.helper.number_formatter(
+                self.modifiers.get_click_mod_sell())) + " )"
 
             # Toggle on the sell clicker button
             self.sell_clicker["state"] = "normal"
@@ -157,10 +163,11 @@ class GUI:
         if self.counter.current_count >= self.modifiers.tick_mod_buy:
             self.counter.set_current_count(self.counter.current_count - self.modifiers.tick_mod_buy)
             self.modifiers.increment_tick_mod(1)
-            self.counter_label.config(text=self.counter.current_count)
-            self.buy_ticker["text"] = "Buy +1/tick [ " + str(self.modifiers.tick_mod) + " ] ( " + \
-                                      str(self.modifiers.tick_mod_buy) + " )"
-            self.sell_ticker["text"] = "Sell +1/tick ( " + str(self.modifiers.get_tick_mod_sell()) + " )"
+            self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
+            self.buy_ticker["text"] = "Buy +1/tick [ " + str(self.helper.number_formatter(self.modifiers.tick_mod)) + \
+                                      " ] ( " + str(self.helper.number_formatter(self.modifiers.tick_mod_buy)) + " )"
+            self.sell_ticker["text"] = "Sell +1/tick ( " + str(self.helper.number_formatter(
+                self.modifiers.get_tick_mod_sell())) + " )"
 
             # Toggle on the sell ticker button
             self.sell_ticker["state"] = "normal"
@@ -179,7 +186,7 @@ class GUI:
     def sell_clicker_callback(self):
         if self.modifiers.click_mod > 0:
             self.counter.set_current_count(self.counter.current_count + self.modifiers.get_click_mod_sell())
-            self.counter_label.config(text=self.counter.current_count)
+            self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
             self.modifiers.decrement_click_mod(1)
 
             # Toggle the sell button based on if you own any
@@ -188,9 +195,11 @@ class GUI:
                 self.sell_clicker["text"] = "Sell +1/click ( - )"
                 self.buy_clicker["text"] = "Buy +1/click [ 0 ] ( 100 )"
             else:
-                self.sell_clicker["text"] = "Sell +1/click ( " + str(self.modifiers.get_click_mod_sell()) + " )"
-                self.buy_clicker["text"] = "Buy +1/click [ " + str(self.modifiers.click_mod) + " ] ( " + \
-                                           str(self.modifiers.click_mod_buy) + " )"
+                self.sell_clicker["text"] = "Sell +1/click ( " + str(self.helper.number_formatter(
+                    self.modifiers.get_click_mod_sell())) + " )"
+                self.buy_clicker["text"] = "Buy +1/click [ " + str(self.helper.number_formatter(
+                    self.modifiers.click_mod)) + " ] ( " + str(self.helper.number_formatter(
+                    self.modifiers.click_mod_buy)) + " )"
 
             # Toggle the buy buttons based on if you can afford them
             if self.counter.current_count < self.modifiers.click_mod_buy:
@@ -206,18 +215,20 @@ class GUI:
     def sell_ticker_callback(self):
         if self.modifiers.tick_mod > 0:
             self.counter.set_current_count(self.counter.current_count + self.modifiers.get_tick_mod_sell())
-            self.counter_label.config(text=self.counter.current_count)
+            self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
             self.modifiers.decrement_tick_mod(1)
 
             # Toggle the sell button based on if you own any
             if self.modifiers.tick_mod == 0:
                 self.sell_ticker["state"] = "disabled"
                 self.sell_ticker["text"] = "Sell +1/tick ( - )"
-                self.buy_ticker["text"] = "Buy +1/tick [ 0 ] ( 1000 )"
+                self.buy_ticker["text"] = "Buy +1/tick [ 0 ] ( 1,000 )"
             else:
-                self.sell_ticker["text"] = "Sell +1/tick ( " + str(self.modifiers.get_click_mod_sell()) + " )"
-                self.buy_ticker["text"] = "Buy +1/tick [ " + str(self.modifiers.tick_mod) + " ] ( " + \
-                                          str(self.modifiers.tick_mod_buy) + " )"
+                self.sell_ticker["text"] = "Sell +1/tick ( " + str(self.helper.number_formatter(
+                    self.modifiers.get_click_mod_sell())) + " )"
+                self.buy_ticker["text"] = "Buy +1/tick [ " + str(self.helper.number_formatter(
+                    self.modifiers.tick_mod)) + " ] ( " + str(self.helper.number_formatter(
+                    self.modifiers.tick_mod_buy)) + " )"
 
             # Toggle the buy buttons based on if you can afford them
             if self.counter.current_count < self.modifiers.click_mod_buy:
@@ -246,8 +257,19 @@ class GUI:
         self.window.title('Statistics')
         self.window.iconbitmap("assets/sqrt2.ico")
         self.window.grab_set()
-        Label(self.window, justify=CENTER, text='Statistics: ').grid(row=0, column=0, columnspan=2,
-                                                                     sticky=N + E + S + W)
+
+        elapsed_time = str(self.main_clock.get_time_since_start())
+        current_count = str(self.helper.number_formatter(self.counter.get_current_count()))
+        max_count = str(self.helper.number_formatter(self.counter.get_current_count() +
+                                                     self.modifiers.get_click_mod_sell() +
+                                                     self.modifiers.total_spent_tick_mod()))
+        cm = str(self.helper.number_formatter(self.modifiers.get_click_mod()))
+        tm = str(self.helper.number_formatter(self.modifiers.get_tick_mod()))
+        click_amount = '+' + str(self.helper.number_formatter(self.modifiers.get_click_mod() + 1))
+        tick_amount = '+' + str(self.helper.number_formatter(self.modifiers.get_tick_mod() + 1))
+
+        Label(self.window, font='bold', justify=CENTER, text='Statistics: ').grid(row=0, column=0, columnspan=2,
+                                                                                  sticky=N + E + S + W)
         Label(self.window, justify=CENTER, text='Start Date: ').grid(row=1, column=0, sticky=N + E + S + W)
         Label(self.window, justify=CENTER, text=self.main_clock.get_start_date()).grid(row=1, column=1,
                                                                                        sticky=N + E + S + W)
@@ -261,18 +283,20 @@ class GUI:
         Label(self.window, justify=CENTER, text=self.main_clock.get_current_time()).grid(row=4, column=1,
                                                                                          sticky=N + E + S + W)
         Label(self.window, justify=CENTER, text='Elapsed Time: ').grid(row=5, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=str(self.main_clock.get_time_since_start())).grid(row=5, column=1,
-                                                                                                  sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text=elapsed_time).grid(row=5, column=1, sticky=N + E + S + W)
         Label(self.window, justify=CENTER, text='Current Count: ').grid(row=6, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=str(self.counter.get_current_count())).grid(row=6, column=1,
-                                                                                            sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Click Modifier: ').grid(row=7, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=self.modifiers.get_click_mod()).grid(row=7, column=1,
-                                                                                     sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Tick Modifier: ').grid(row=8, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=self.modifiers.get_tick_mod()).grid(row=8, column=1,
-                                                                                    sticky=N + E + S + W)
-        Button(self.window, text='Close Window', command=self.exit_window).grid(row=9, column=0, columnspan=2,
+        Label(self.window, justify=CENTER, text=current_count).grid(row=6, column=1, sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text='Max Count: ').grid(row=7, column=0, sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text=max_count).grid(row=7, column=1, sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text='Click Modifier: ').grid(row=8, column=0, sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text=cm).grid(row=8, column=1, sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text='Tick Modifier: ').grid(row=9, column=0, sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text=tm).grid(row=9, column=1, sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text='Amount/Click: ').grid(row=10, column=0, sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text=click_amount).grid(row=10, column=1, sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text='Amount/Tick: ').grid(row=11, column=0, sticky=N + E + S + W)
+        Label(self.window, justify=CENTER, text=tick_amount).grid(row=11, column=1, sticky=N + E + S + W)
+        Button(self.window, text='Close Window', command=self.exit_window).grid(row=12, column=0, columnspan=2,
                                                                                 sticky=N + E + S + W)
 
     def exit_window(self):
