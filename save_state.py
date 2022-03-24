@@ -23,7 +23,9 @@ class SaveState:
             }],
             'modifiers': [{
                 'click_mod': mod.click_mod,
-                'tick_mod': mod.tick_mod
+                'tick_mod': mod.tick_mod,
+                'click_multi_mod': mod.click_multi_mod,
+                'tick_multi_mod': mod.tick_multi_mod
             }]
         }
 
@@ -54,5 +56,7 @@ class SaveState:
         # Modifiers Parameters
         mod.set_click_mod(data['modifiers'][0]['click_mod'])
         mod.set_tick_mod(data['modifiers'][0]['tick_mod'])
+        mod.set_click_multi_mod(data['modifiers'][0]['click_multi_mod'])
+        mod.set_tick_multi_mod(data['modifiers'][0]['tick_multi_mod'])
 
         print("Loaded")

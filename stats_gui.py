@@ -1,4 +1,5 @@
 # Import Python Libraries
+from math import *
 from tkinter import *
 from tkinter.ttk import *
 
@@ -52,8 +53,7 @@ class StatsGUI:
         max_count = str(self.helper.number_formatter(self.max_counter.current_count))
         self.counts_frame = Frame(self.window, borderwidth=2, relief=SUNKEN)
         self.counts_frame.grid(row=2, column=0, sticky=N + E + S + W, padx=5, pady=5)
-        Label(self.counts_frame, text='Counts').grid(row=0, column=0, columnspan=2,
-                                                                     sticky=N + E + S + W)
+        Label(self.counts_frame, text='Counts').grid(row=0, column=0, columnspan=2, sticky=N + E + S + W)
         Label(self.counts_frame, text='Current Count: ').grid(row=1, column=0, sticky=N + E + S + W)
         Label(self.counts_frame, text=current_count).grid(row=1, column=1, sticky=N + E + S + W)
         Label(self.counts_frame, text='Max Count: ').grid(row=2, column=0, sticky=N + E + S + W)
@@ -61,39 +61,49 @@ class StatsGUI:
 
         # Click Frame
         bc = str(self.helper.number_formatter(self.base_click))
-        cm = str(self.helper.number_formatter(self.modifiers.get_click_mod()))
-        click_amount = '+' + str(self.helper.number_formatter(self.modifiers.get_click_mod() + 1))
+        cmod = str(self.helper.number_formatter(self.modifiers.get_click_mod()))
+        cmulti = str(self.helper.number_formatter(10 * self.modifiers.get_click_multi_mod())) + '%'
+        temp = self.modifiers.get_click_mod() + self.base_click
+        temp += ceil(temp * 0.1 * self.modifiers.get_click_multi_mod())
+        amount = '+' + str(self.helper.number_formatter(temp))
+        click_amount = amount
         click_count = str(self.helper.number_formatter(self.click_counter.current_count))
         self.click_frame = Frame(self.window, borderwidth=2, relief=SUNKEN)
         self.click_frame.grid(row=3, column=0, sticky=N + E + S + W, padx=5, pady=5)
-        Label(self.click_frame, text='Click Stats').grid(row=0, column=0, columnspan=2,
-                                                                         sticky=N + E + S + W)
+        Label(self.click_frame, text='Click Stats').grid(row=0, column=0, columnspan=2, sticky=N + E + S + W)
         Label(self.click_frame, text='Base Click: ').grid(row=1, column=0, sticky=N + E + S + W)
         Label(self.click_frame, text=bc).grid(row=1, column=1, sticky=N + E + S + W)
         Label(self.click_frame, text='Click Modifier: ').grid(row=2, column=0, sticky=N + E + S + W)
-        Label(self.click_frame, text=cm).grid(row=2, column=1, sticky=N + E + S + W)
-        Label(self.click_frame, text='Amount/Click: ').grid(row=3, column=0, sticky=N + E + S + W)
-        Label(self.click_frame, text=click_amount).grid(row=3, column=1, sticky=N + E + S + W)
-        Label(self.click_frame, text='Click Count: ').grid(row=4, column=0, sticky=N + E + S + W)
-        Label(self.click_frame, text=click_count).grid(row=4, column=1, sticky=N + E + S + W)
+        Label(self.click_frame, text=cmod).grid(row=2, column=1, sticky=N + E + S + W)
+        Label(self.click_frame, text='Click Multiplier: ').grid(row=3, column=0, sticky=N + E + S + W)
+        Label(self.click_frame, text=cmulti).grid(row=3, column=1, sticky=N + E + S + W)
+        Label(self.click_frame, text='Amount/Click: ').grid(row=4, column=0, sticky=N + E + S + W)
+        Label(self.click_frame, text=click_amount).grid(row=4, column=1, sticky=N + E + S + W)
+        Label(self.click_frame, text='Click Count: ').grid(row=5, column=0, sticky=N + E + S + W)
+        Label(self.click_frame, text=click_count).grid(row=5, column=1, sticky=N + E + S + W)
 
         # Tick Frame
         bt = str(self.helper.number_formatter(self.base_tick))
-        tm = str(self.helper.number_formatter(self.modifiers.get_tick_mod()))
-        tick_amount = '+' + str(self.helper.number_formatter(self.modifiers.get_tick_mod() + 1))
+        tmod = str(self.helper.number_formatter(self.modifiers.get_tick_mod()))
+        tmulti = str(self.helper.number_formatter(10 * self.modifiers.get_tick_multi_mod())) + '%'
+        temp = self.modifiers.get_tick_mod() + self.base_tick
+        temp += ceil(temp * 0.1 * self.modifiers.get_tick_multi_mod())
+        amount = '+' + str(self.helper.number_formatter(temp))
+        tick_amount = amount
         tick_count = str(self.helper.number_formatter(self.tick_counter.current_count))
         self.tick_frame = Frame(self.window, borderwidth=2, relief=SUNKEN)
         self.tick_frame.grid(row=4, column=0, sticky=N + E + S + W, padx=5, pady=5)
-        Label(self.tick_frame, text='Tick Stats').grid(row=0, column=0, columnspan=2,
-                                                                       sticky=N + E + S + W)
+        Label(self.tick_frame, text='Tick Stats').grid(row=0, column=0, columnspan=2, sticky=N + E + S + W)
         Label(self.tick_frame, text='Base Tick: ').grid(row=1, column=0, sticky=N + E + S + W)
         Label(self.tick_frame, text=bt).grid(row=1, column=1, sticky=N + E + S + W)
         Label(self.tick_frame, text='Tick Modifier: ').grid(row=2, column=0, sticky=N + E + S + W)
-        Label(self.tick_frame, text=tm).grid(row=2, column=1, sticky=N + E + S + W)
-        Label(self.tick_frame, text='Amount/Tick: ').grid(row=3, column=0, sticky=N + E + S + W)
-        Label(self.tick_frame, text=tick_amount).grid(row=3, column=1, sticky=N + E + S + W)
-        Label(self.tick_frame, text='Tick Count: ').grid(row=4, column=0, sticky=N + E + S + W)
-        Label(self.tick_frame, text=tick_count).grid(row=4, column=1, sticky=N + E + S + W)
+        Label(self.tick_frame, text=tmod).grid(row=2, column=1, sticky=N + E + S + W)
+        Label(self.tick_frame, text='Tick Multiplier: ').grid(row=3, column=0, sticky=N + E + S + W)
+        Label(self.tick_frame, text=tmulti).grid(row=3, column=1, sticky=N + E + S + W)
+        Label(self.tick_frame, text='Amount/Tick: ').grid(row=4, column=0, sticky=N + E + S + W)
+        Label(self.tick_frame, text=tick_amount).grid(row=4, column=1, sticky=N + E + S + W)
+        Label(self.tick_frame, text='Tick Count: ').grid(row=5, column=0, sticky=N + E + S + W)
+        Label(self.tick_frame, text=tick_count).grid(row=5, column=1, sticky=N + E + S + W)
 
         # Footer Frame
         # self.footer_frame = Frame(self.window, borderwidth=2, relief=SUNKEN)

@@ -1,4 +1,5 @@
 # Import Python Libraries
+from math import *
 from tkinter import *
 from tkinter.ttk import *
 
@@ -71,14 +72,14 @@ class GUI:
                                    command=self.sell_clicker_callback)
         self.sell_ticker = Button(self.button_frame, text='Sell +1/tick ( - )', state="disabled",
                                   command=self.sell_ticker_callback)
-        self.buy_clicker_multiplier = Button(self.button_frame, text='Buy +1%/click [ 0 ] ( 10,000 )', state="disabled",
-                                             command=self.buy_clicker_callback)
-        self.buy_ticker_multiplier = Button(self.button_frame, text='Buy +1%/tick [ 0 ] ( 100,000 )', state="disabled",
-                                            command=self.buy_ticker_callback)
-        self.sell_clicker_multiplier = Button(self.button_frame, text='Sell +1%/click ( - )', state="disabled",
-                                              command=self.sell_clicker_callback)
-        self.sell_ticker_multiplier = Button(self.button_frame, text='Sell +1%/tick ( - )', state="disabled",
-                                             command=self.sell_ticker_callback)
+        self.buy_clicker_multiplier = Button(self.button_frame, text='Buy +10%/click [ 0 ] ( 10,000 )',
+                                             state="disabled", command=self.buy_clicker_multiplier_callback)
+        self.buy_ticker_multiplier = Button(self.button_frame, text='Buy +10%/tick [ 0 ] ( 100,000 )', state="disabled",
+                                            command=self.buy_ticker_multiplier_callback)
+        self.sell_clicker_multiplier = Button(self.button_frame, text='Sell +10%/click ( - )', state="disabled",
+                                              command=self.sell_clicker_multiplier_callback)
+        self.sell_ticker_multiplier = Button(self.button_frame, text='Sell +10%/tick ( - )', state="disabled",
+                                             command=self.sell_ticker_multiplier_callback)
 
         # Placing Frames, Labels, and Buttons at the centre of the tkinter window
         self.game_frame.grid(row=0, column=0, sticky=E + W, padx=5, pady=5)
@@ -99,31 +100,36 @@ class GUI:
         self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
 
     # Function to automatically increment the clock and counter every 1 second
+    # Function that controls a tick
     def update_gui(self):
         self.date_label.config(text=self.main_clock.current_date)
         self.time_label.config(text=self.main_clock.current_time)
-        self.counter.increment(self.base_tick + self.modifiers.tick_counter.current_count)
-        self.max_counter.increment(self.base_tick + self.modifiers.tick_counter.current_count)
-        self.tick_counter.increment(self.base_tick + self.modifiers.tick_counter.current_count)
-        self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
-        self.scheduler()
-        self.buy_clicker["text"] = "Buy +1/click [ " + str(self.helper.number_formatter(self.modifiers.click_mod)) + \
-                                   " ] ( " + str(self.helper.number_formatter(self.modifiers.click_mod_buy)) + " )"
-        self.buy_ticker["text"] = "Buy +1/tick [ " + str(self.helper.number_formatter(self.modifiers.tick_mod)) + \
-                                  " ] ( " + str(self.helper.number_formatter(self.modifiers.tick_mod_buy)) + " )"
 
+        tick = self.base_tick + self.modifiers.tick_counter.current_count
+        tick += ceil(tick * 0.1 * self.modifiers.tick_multiplier_counter.current_count)
+        self.counter.increment(tick)
+        self.max_counter.increment(tick)
+        self.tick_counter.increment(tick)
+        self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
+
+        self.scheduler()
         self.buy_buttons_toggler()
         self.sell_buttons_toggler()
 
     # Button Callbacks
+    # Function that controls a click
     def clicker_callback(self):
-        self.counter.increment(self.base_click + self.modifiers.click_counter.current_count)
-        self.max_counter.increment(self.base_click + self.modifiers.click_counter.current_count)
-        self.click_counter.increment(self.base_click + self.modifiers.click_counter.current_count)
+        click = self.base_click + self.modifiers.click_counter.current_count
+        click += ceil(click * 0.1 * self.modifiers.click_multiplier_counter.current_count)
+        self.counter.increment(click)
+        self.max_counter.increment(click)
+        self.click_counter.increment(click)
         self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
+
         self.scheduler()
         self.buy_buttons_toggler()
 
+    # Buy Button Callbacks
     def buy_clicker_callback(self):
         if self.counter.current_count >= self.modifiers.click_mod_buy:
             self.counter.set_current_count(self.counter.current_count - self.modifiers.click_mod_buy)
@@ -157,6 +163,41 @@ class GUI:
 
             self.buy_buttons_toggler()
 
+    def buy_clicker_multiplier_callback(self):
+        if self.counter.current_count >= self.modifiers.click_multi_mod_buy:
+            self.counter.set_current_count(self.counter.current_count - self.modifiers.click_multi_mod_buy)
+            self.modifiers.increment_click_multi_mod(1)
+            self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
+            self.scheduler()
+            self.buy_clicker_multiplier["text"] = "Buy +10%/click [ " + str(self.helper.number_formatter(
+                self.modifiers.click_multi_mod)) + " ] ( " + str(self.helper.number_formatter(
+                self.modifiers.click_multi_mod_buy)) + " )"
+            self.sell_clicker_multiplier["text"] = "Sell +10%/click ( " + str(self.helper.number_formatter(
+                self.modifiers.get_click_multi_mod_sell())) + " )"
+
+            # Toggle on the sell clicker button
+            self.sell_clicker_multiplier["state"] = "normal"
+
+            self.buy_buttons_toggler()
+
+    def buy_ticker_multiplier_callback(self):
+        if self.counter.current_count >= self.modifiers.tick_multi_mod_sell:
+            self.counter.set_current_count(self.counter.current_count - self.modifiers.tick_multi_mod_buy)
+            self.modifiers.increment_tick_multi_mod(1)
+            self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
+            self.scheduler()
+            self.buy_ticker_multiplier["text"] = "Buy +10%/tick [ " + str(self.helper.number_formatter(
+                self.modifiers.tick_multi_mod)) + " ] ( " + str(self.helper.number_formatter(
+                self.modifiers.tick_multi_mod_buy)) + " )"
+            self.sell_ticker_multiplier["text"] = "Sell +10%/tick ( " + str(self.helper.number_formatter(
+                self.modifiers.get_tick_multi_mod_sell())) + " )"
+
+            # Toggle on the sell ticker button
+            self.sell_ticker_multiplier["state"] = "normal"
+
+            self.buy_buttons_toggler()
+
+    # Sell Button Callbacks
     def sell_clicker_callback(self):
         if self.modifiers.click_mod > 0:
             self.counter.set_current_count(self.counter.current_count + self.modifiers.get_click_mod_sell())
@@ -192,10 +233,52 @@ class GUI:
                 self.buy_ticker["text"] = "Buy +1/tick [ 0 ] ( 1,000 )"
             else:
                 self.sell_ticker["text"] = "Sell +1/tick ( " + str(self.helper.number_formatter(
-                    self.modifiers.get_click_mod_sell())) + " )"
+                    self.modifiers.get_tick_mod_sell())) + " )"
                 self.buy_ticker["text"] = "Buy +1/tick [ " + str(self.helper.number_formatter(
                     self.modifiers.tick_mod)) + " ] ( " + str(self.helper.number_formatter(
                     self.modifiers.tick_mod_buy)) + " )"
+
+            self.buy_buttons_toggler()
+
+    def sell_clicker_multiplier_callback(self):
+        if self.modifiers.click_multi_mod > 0:
+            self.counter.set_current_count(self.counter.current_count + self.modifiers.get_click_multi_mod_sell())
+            self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
+            self.modifiers.decrement_click_multi_mod(1)
+            self.scheduler()
+
+            # Toggle the sell button based on if you own any
+            if self.modifiers.click_multi_mod == 0:
+                self.sell_clicker_multiplier["state"] = "disabled"
+                self.sell_clicker_multiplier["text"] = "Sell +10%/click ( - )"
+                self.buy_clicker_multiplier["text"] = "Buy +10%/click [ 0 ] ( 100,000 )"
+            else:
+                self.sell_clicker_multiplier["text"] = "Sell +10%/click ( " + str(self.helper.number_formatter(
+                    self.modifiers.get_click_multi_mod_sell())) + " )"
+                self.buy_clicker_multiplier["text"] = "Buy +10%/click [ " + str(self.helper.number_formatter(
+                    self.modifiers.click_multi_mod)) + " ] ( " + str(self.helper.number_formatter(
+                    self.modifiers.click_multi_mod_buy)) + " )"
+
+            self.buy_buttons_toggler()
+
+    def sell_ticker_multiplier_callback(self):
+        if self.modifiers.tick_multi_mod > 0:
+            self.counter.set_current_count(self.counter.current_count + self.modifiers.get_tick_multi_mod_sell())
+            self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
+            self.modifiers.decrement_tick_multi_mod(1)
+            self.scheduler()
+
+            # Toggle the sell button based on if you own any
+            if self.modifiers.tick_multi_mod == 0:
+                self.sell_ticker_multiplier["state"] = "disabled"
+                self.sell_ticker_multiplier["text"] = "Sell +10%/tick ( - )"
+                self.buy_ticker_multiplier["text"] = "Buy +10%/tick [ 0 ] ( 100,000 )"
+            else:
+                self.sell_ticker_multiplier["text"] = "Sell +10%/tick ( " + str(self.helper.number_formatter(
+                    self.modifiers.get_tick_multi_mod_sell())) + " )"
+                self.buy_ticker_multiplier["text"] = "Buy +10%/tick [ " + str(self.helper.number_formatter(
+                    self.modifiers.tick_multi_mod)) + " ] ( " + str(self.helper.number_formatter(
+                    self.modifiers.tick_multi_mod_buy)) + " )"
 
             self.buy_buttons_toggler()
 
@@ -209,16 +292,28 @@ class GUI:
             self.buy_ticker.grid(row=2, column=0, columnspan=2, sticky=N + E + S + W)
             self.sell_ticker.grid(row=2, column=2, columnspan=2, sticky=N + E + S + W)
 
-        # if self.max_counter.current_count >= 10000:
-        #     self.buy_clicker_multiplier.grid(row=1, column=0, columnspan=2, sticky=N + E + S + W)
-        #     self.sell_clicker_multiplier.grid(row=1, column=2, columnspan=2, sticky=N + E + S + W)
-        #
-        # if self.max_counter.current_count >= 100000:
-        #     self.buy_ticker_multiplier.grid(row=2, column=0, columnspan=2, sticky=N + E + S + W)
-        #     self.sell_ticker_multiplier.grid(row=2, column=2, columnspan=2, sticky=N + E + S + W)
+        if self.max_counter.current_count >= 10000:
+            self.buy_clicker_multiplier.grid(row=3, column=0, columnspan=2, sticky=N + E + S + W)
+            self.sell_clicker_multiplier.grid(row=3, column=2, columnspan=2, sticky=N + E + S + W)
+
+        if self.max_counter.current_count >= 100000:
+            self.buy_ticker_multiplier.grid(row=4, column=0, columnspan=2, sticky=N + E + S + W)
+            self.sell_ticker_multiplier.grid(row=4, column=2, columnspan=2, sticky=N + E + S + W)
 
     # Function to toggle when the state and text of the buy/sell buttons
     def buy_buttons_toggler(self):
+        # Set the proper text for buy buttons whenever called, should be needed for loads
+        self.buy_clicker["text"] = "Buy +1/click [ " + str(self.helper.number_formatter(self.modifiers.click_mod)) + \
+                                   " ] ( " + str(self.helper.number_formatter(self.modifiers.click_mod_buy)) + " )"
+        self.buy_ticker["text"] = "Buy +1/tick [ " + str(self.helper.number_formatter(self.modifiers.tick_mod)) + \
+                                  " ] ( " + str(self.helper.number_formatter(self.modifiers.tick_mod_buy)) + " )"
+        self.buy_clicker_multiplier["text"] = "Buy +10%/click [ " + str(self.helper.number_formatter(
+            self.modifiers.click_multi_mod)) + " ] ( " + str(self.helper.number_formatter(
+            self.modifiers.click_multi_mod_buy)) + " )"
+        self.buy_ticker_multiplier["text"] = "Buy +10%/tick [ " + str(self.helper.number_formatter(
+            self.modifiers.tick_multi_mod)) + " ] ( " + str(self.helper.number_formatter(
+            self.modifiers.tick_multi_mod_buy)) + " )"
+
         # Toggle the buy buttons based on if you can afford them
         if self.counter.current_count < self.modifiers.click_mod_buy:
             self.buy_clicker["state"] = "disabled"
@@ -229,6 +324,16 @@ class GUI:
             self.buy_ticker["state"] = "disabled"
         else:
             self.buy_ticker["state"] = "normal"
+
+        if self.counter.current_count < self.modifiers.click_multi_mod_buy:
+            self.buy_clicker_multiplier["state"] = "disabled"
+        else:
+            self.buy_clicker_multiplier["state"] = "normal"
+
+        if self.counter.current_count < self.modifiers.tick_multi_mod_buy:
+            self.buy_ticker_multiplier["state"] = "disabled"
+        else:
+            self.buy_ticker_multiplier["state"] = "normal"
 
     def sell_buttons_toggler(self):
         # Toggle the sell buttons based on if you own any
@@ -247,6 +352,22 @@ class GUI:
             self.sell_ticker["state"] = "normal"
             self.sell_ticker["text"] = "Sell +1/tick ( " + str(self.helper.number_formatter(
                 self.modifiers.get_tick_mod_sell())) + " )"
+
+        if self.modifiers.click_multi_mod == 0:
+            self.sell_clicker_multiplier["state"] = "disabled"
+            self.sell_clicker_multiplier["text"] = "Sell +10%/click ( - )"
+        else:
+            self.sell_clicker_multiplier["state"] = "normal"
+            self.sell_clicker_multiplier["text"] = "Sell +10%/click ( " + str(self.helper.number_formatter(
+                self.modifiers.get_click_multi_mod_sell())) + " )"
+
+        if self.modifiers.tick_multi_mod == 0:
+            self.sell_ticker_multiplier["state"] = "disabled"
+            self.sell_ticker_multiplier["text"] = "Sell +10%/tick ( - )"
+        else:
+            self.sell_ticker_multiplier["state"] = "normal"
+            self.sell_ticker_multiplier["text"] = "Sell +10%/tick ( " + str(self.helper.number_formatter(
+                self.modifiers.get_tick_multi_mod_sell())) + " )"
 
     # Menu Functions
     def save(self):

@@ -4,12 +4,18 @@ from counter import Counter
 class Modifiers:
     click_counter = Counter()
     tick_counter = Counter()
+    click_multiplier_counter = Counter()
+    tick_multiplier_counter = Counter()
 
-    def __init__(self, click_mod=0, tick_mod=0):
+    def __init__(self, click_mod=0, tick_mod=0, click_multi_mod=0, tick_multi_mod=0):
         self.click_mod = click_mod
         self.tick_mod = tick_mod
+        self.click_multi_mod = click_multi_mod
+        self.tick_multi_mod = tick_multi_mod
         self.click_mod_buy = int(100 * (1.1 ** click_mod))
         self.tick_mod_buy = int(1000 * (1.2 ** tick_mod))
+        self.click_multi_mod_buy = int(10000 * (1.3 ** click_multi_mod))
+        self.tick_multi_mod_buy = int(100000 * (1.4 ** tick_multi_mod))
 
         if click_mod == 0:
             self.click_mod_sell = 0
@@ -20,6 +26,16 @@ class Modifiers:
             self.tick_mod_sell = 0
         else:
             self.tick_mod_sell = int(1000 * (1.2 ** (tick_mod - 1)))
+
+        if click_multi_mod == 0:
+            self.click_multi_mod_sell = 0
+        else:
+            self.click_multi_mod_sell = int(10000 * (1.3 ** (click_mod - 1)))
+
+        if tick_multi_mod == 0:
+            self.tick_multi_mod_sell = 0
+        else:
+            self.tick_multi_mod_sell = int(100000 * (1.4 ** (tick_mod - 1)))
 
     # Click modifiers functions
     def increment_click_mod(self, amount):
@@ -73,6 +89,40 @@ class Modifiers:
 
         return total_spent_tick
 
+    # Click Multiplier Modifiers
+    def increment_click_multi_mod(self, amount):
+        self.click_multiplier_counter.increment(amount)
+        self.click_multi_mod = self.click_multiplier_counter.current_count
+        self.click_multi_mod_buy = int(10000 * (1.3 ** self.click_multi_mod))
+        self.click_multi_mod_sell = int(10000 * (1.3 ** (self.click_multi_mod - 1)))
+
+    def decrement_click_multi_mod(self, amount):
+        self.click_multiplier_counter.decrement(amount)
+        self.click_multi_mod = self.click_multiplier_counter.current_count
+        self.click_multi_mod_buy = int(10000 * (1.3 ** self.click_multi_mod))
+
+        if self.click_multi_mod == 0:
+            self.click_multi_mod_sell = 0
+        else:
+            self.click_multi_mod_sell = int(10000 * (1.3 ** (self.click_multi_mod - 1)))
+
+    # Tick Multiplier Modifiers
+    def increment_tick_multi_mod(self, amount):
+        self.tick_multiplier_counter.increment(amount)
+        self.tick_multi_mod = self.tick_multiplier_counter.current_count
+        self.tick_multi_mod_buy = int(100000 * (1.4 ** self.tick_multi_mod))
+        self.tick_multi_mod_sell = int(100000 * (1.4 ** (self.tick_multi_mod - 1)))
+
+    def decrement_tick_multi_mod(self, amount):
+        self.tick_multiplier_counter.decrement(amount)
+        self.tick_multi_mod = self.tick_multiplier_counter.current_count
+        self.tick_multi_mod_buy = int(100000 * (1.4 ** self.tick_multi_mod))
+
+        if self.tick_multi_mod == 0:
+            self.tick_multi_mod_sell = 0
+        else:
+            self.tick_multi_mod_sell = int(100000 * (1.4 ** (self.tick_multi_mod - 1)))
+
     # Getters
     def get_click_mod(self):
         return self.click_mod
@@ -91,6 +141,24 @@ class Modifiers:
 
     def get_tick_mod_sell(self):
         return self.tick_mod_sell
+
+    def get_click_multi_mod(self):
+        return self.click_multi_mod
+
+    def get_tick_multi_mod(self):
+        return self.tick_multi_mod
+
+    def get_click_multi_mod_buy(self):
+        return self.click_multi_mod_buy
+
+    def get_tick_multi_mod_buy(self):
+        return self.tick_multi_mod_buy
+
+    def get_click_multi_mod_sell(self):
+        return self.click_multi_mod_sell
+
+    def get_tick_multi_mod_sell(self):
+        return self.tick_multi_mod_sell
 
     # Setters
     def set_click_mod(self, cm):
@@ -112,3 +180,23 @@ class Modifiers:
             self.tick_mod_sell = 0
         else:
             self.tick_mod_sell = int(1000 * (1.2 ** (tm - 1)))
+
+    def set_click_multi_mod(self, cmm):
+        self.click_multi_mod = cmm
+        self.click_multi_mod_buy = int(10000 * (1.3 ** cmm))
+        self.click_multiplier_counter.set_current_count(cmm)
+
+        if cmm == 0:
+            self.click_multi_mod_sell = 0
+        else:
+            self.click_multi_mod_sell = int(10000 * (1.3 ** (cmm - 1)))
+
+    def set_tick_multi_mod(self, tmm):
+        self.tick_multi_mod = tmm
+        self.tick_multi_mod_buy = int(100000 * (1.4 ** tmm))
+        self.tick_multiplier_counter.set_current_count(tmm)
+
+        if tmm == 0:
+            self.tick_multi_mod_sell = 0
+        else:
+            self.tick_multi_mod_sell = int(100000 * (1.4 ** (tmm - 1)))
