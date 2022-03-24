@@ -8,11 +8,12 @@ from counter import Counter
 from helper import Helper
 from modifiers import Modifiers
 from save_state import SaveState
+from stats_gui import StatsGUI
 
 
 class GUI:
-    click = 1
-    tick = 1
+    base_click = 1
+    base_tick = 1
     main_clock = Clock()
     counter = Counter()
     max_counter = Counter()
@@ -101,9 +102,9 @@ class GUI:
     def update_gui(self):
         self.date_label.config(text=self.main_clock.current_date)
         self.time_label.config(text=self.main_clock.current_time)
-        self.counter.increment(self.tick + self.modifiers.tick_counter.current_count)
-        self.max_counter.increment(self.tick + self.modifiers.tick_counter.current_count)
-        self.tick_counter.increment(self.tick + self.modifiers.tick_counter.current_count)
+        self.counter.increment(self.base_tick + self.modifiers.tick_counter.current_count)
+        self.max_counter.increment(self.base_tick + self.modifiers.tick_counter.current_count)
+        self.tick_counter.increment(self.base_tick + self.modifiers.tick_counter.current_count)
         self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
         self.scheduler()
         self.buy_clicker["text"] = "Buy +1/click [ " + str(self.helper.number_formatter(self.modifiers.click_mod)) + \
@@ -116,9 +117,9 @@ class GUI:
 
     # Button Callbacks
     def clicker_callback(self):
-        self.counter.increment(self.click + self.modifiers.click_counter.current_count)
-        self.max_counter.increment(self.click + self.modifiers.click_counter.current_count)
-        self.click_counter.increment(self.click + self.modifiers.click_counter.current_count)
+        self.counter.increment(self.base_click + self.modifiers.click_counter.current_count)
+        self.max_counter.increment(self.base_click + self.modifiers.click_counter.current_count)
+        self.click_counter.increment(self.base_click + self.modifiers.click_counter.current_count)
         self.counter_label.config(text=str(self.helper.number_formatter(self.counter.current_count)))
         self.scheduler()
         self.buy_buttons_toggler()
@@ -260,57 +261,5 @@ class GUI:
 
     # Statistics pop-out window, provides general statistics on the game thus far
     def get_statistics(self):
-        self.window = Toplevel(self.master)
-        self.window.title('Statistics')
-        self.window.iconbitmap("assets/sqrt2.ico")
-        self.window.grab_set()
-
-        elapsed_time = str(self.main_clock.get_time_since_start())
-        current_count = str(self.helper.number_formatter(self.counter.get_current_count()))
-        max_count = str(self.helper.number_formatter(self.max_counter.current_count))
-        cm = str(self.helper.number_formatter(self.modifiers.get_click_mod()))
-        click_amount = '+' + str(self.helper.number_formatter(self.modifiers.get_click_mod() + 1))
-        click_count = str(self.helper.number_formatter(self.click_counter.current_count))
-        tm = str(self.helper.number_formatter(self.modifiers.get_tick_mod()))
-        tick_amount = '+' + str(self.helper.number_formatter(self.modifiers.get_tick_mod() + 1))
-        tick_count = str(self.helper.number_formatter(self.tick_counter.current_count))
-
-        Label(self.window, font='bold', justify=CENTER, text='Statistics: ').grid(row=0, column=0, columnspan=2,
-                                                                                  sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Start Date: ').grid(row=1, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=self.main_clock.get_start_date()).grid(row=1, column=1,
-                                                                                       sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Start Time: ').grid(row=2, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=self.main_clock.get_start_time_str()).grid(row=2, column=1,
-                                                                                           sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Current Date: ').grid(row=3, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=self.main_clock.get_current_date()).grid(row=3, column=1,
-                                                                                         sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Current Time: ').grid(row=4, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=self.main_clock.get_current_time()).grid(row=4, column=1,
-                                                                                         sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Elapsed Time: ').grid(row=5, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=elapsed_time).grid(row=5, column=1, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Current Count: ').grid(row=6, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=current_count).grid(row=6, column=1, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Max Count: ').grid(row=7, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=max_count).grid(row=7, column=1, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Click Modifier: ').grid(row=8, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=cm).grid(row=8, column=1, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Amount/Click: ').grid(row=9, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=click_amount).grid(row=9, column=1, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Click Count: ').grid(row=10, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=click_count).grid(row=10, column=1, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Tick Modifier: ').grid(row=11, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=tm).grid(row=11, column=1, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Amount/Tick: ').grid(row=12, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=tick_amount).grid(row=12, column=1, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text='Tick Count: ').grid(row=13, column=0, sticky=N + E + S + W)
-        Label(self.window, justify=CENTER, text=tick_count).grid(row=13, column=1, sticky=N + E + S + W)
-        Button(self.window, text='Close Window', command=self.exit_window).grid(row=14, column=0, columnspan=2,
-                                                                                sticky=N + E + S + W)
-
-    # Closes the statistics pop-out window
-    def exit_window(self):
-        self.window.destroy()
-        print("The statistics window has been closed.")
+        stats_gui = StatsGUI(self.master, self.main_clock, self.counters, self.modifiers, self.base_click,
+                             self.base_tick)

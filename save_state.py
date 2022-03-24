@@ -31,14 +31,14 @@ class SaveState:
         print(json_string)
 
         # Write to save.json file the above data
-        with open('save.json', 'w') as outfile:
+        with open('assets/save.json', 'w') as outfile:
             outfile.write(json_string)
 
         print("Saved")
 
     def load(self, clk, cntrs, mod):
         # Load data from save.json
-        with open('save.json') as json_file:
+        with open('assets/save.json') as json_file:
             data = load(json_file)
 
         # Set relevant save parameters
